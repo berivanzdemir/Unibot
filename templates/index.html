@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğitim Asistanı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00CED1;
+            --secondary-color: #1E90FF;
+            --background-color: #F0F8FF;
+            --text-color: #333;
+            --container-bg: #fff;
+            --message-bg-user: var(--primary-color);
+            --message-bg-bot: var(--secondary-color);
+            --message-text: #fff;
+            --input-bg: #fff;
+            --input-border: var(--primary-color);
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #00CED1;
+            --secondary-color: #1E90FF;
+            --background-color: #1a1a1a;
+            --text-color: #fff;
+            --container-bg: #2d2d2d;
+            --message-bg-user: var(--primary-color);
+            --message-bg-bot: var(--secondary-color);
+            --message-text: #fff;
+            --input-bg: #3d3d3d;
+            --input-border: var(--primary-color);
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .main-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 24px 0 10px 0;
+            border-radius: 0 0 24px 24px;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .chat-container {
+            flex: 1 1 auto;
+            width: 100vw;
+            max-width: 100vw;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            background: var(--container-bg);
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px 8vw 20px 8vw;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--container-bg);
+        }
+        .quick-access {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .quick-btn {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 22px;
+            padding: 10px 28px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 4px 0;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(30,144,255,0.08);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .quick-btn:hover {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px) scale(1.04);
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+            padding: 20px 8vw 20px 8vw;
+            background: var(--input-bg);
+            border-top: 1px solid #eee;
+            width: 100vw;
+            box-sizing: border-box;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 2px solid var(--input-border);
+            border-radius: 25px;
+            outline: none;
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+        .action-button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .action-button:hover {
+            background-color: var(--secondary-color);
+        }
+        .action-button.active {
+            background-color: var(--secondary-color);
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--message-text);
+        }
+        .user-message {
+            background-color: var(--message-bg-user);
+            color: var(--message-text);
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: var(--message-bg-bot);
+            color: var(--message-text);
+            align-self: flex-start;
+        }
+        .message-content {
+            flex-grow: 1;
+        }
+        .message-actions {
+            display: flex;
+            gap: 5px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+        .action-icon {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s;
+        }
+        .action-icon:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .voice-settings {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .voice-settings select {
+            padding: 5px;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            outline: none;
+        }
+        .voice-settings label {
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            border: 2px solid #e0e0e0;
+        }
+        .bot-avatar img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        @media (max-width: 900px) {
+            .chat-messages, .input-container {
+                padding-left: 2vw;
+                padding-right: 2vw;
+            }
+        }
+        @media (max-width: 600px) {
+            .main-header {
+                font-size: 1.1rem;
+                padding: 16px 0 6px 0;
+            }
+            .chat-messages, .input-container {
+                padding-left: 1vw;
+                padding-right: 1vw;
+            }
+            .quick-btn {
+                padding: 8px 12px;
+                font-size: 0.95rem;
+            }
+            .input-container {
+                flex-direction: column;
+                gap: 8px;
+            }
+            #message-input {
+                font-size: 1em;
+            }
+        }
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .theme-switch:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.3);
+        }
+        [data-theme="dark"] .theme-switch {
+            background: rgba(0,0,0,0.2);
+        }
+        [data-theme="dark"] .theme-switch:hover {
+            background: rgba(0,0,0,0.3);
+        }
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: var(--message-bg-bot);
+            color: var(--message-text);
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--message-text);
+            display: inline-block;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, rgba(0,210,223,0.18) 0%, rgba(30,144,255,0.18) 100%);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(30,144,255,0.07);
+            min-width: 220px;
+            max-width: 320px;
+            width: 100%;
+            margin-right: 18px;
+            margin-left: 4px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            color: #fff;
+            position: relative;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.18);
+            transition: box-shadow 0.3s, background 0.3s;
+        }
+        .user-profile:hover {
+            box-shadow: 0 4px 24px rgba(30,144,255,0.13);
+            background: linear-gradient(90deg, rgba(0,210,223,0.28) 0%, rgba(30,144,255,0.28) 100%);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 500;
+            font-size: 1em;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border: 1.5px solid rgba(255,255,255,0.25);
+        }
+        .user-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-name {
+            font-weight: 400;
+            font-size: 1em;
+            letter-spacing: 0.1px;
+            color: #fff;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        .user-role {
+            font-size: 0.85em;
+            opacity: 0.85;
+            color: #eaf6fb;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        .user-role::before {
+            content: '\f19d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.95em;
+            color: #b2eaff;
+            margin-right: 2px;
+            display: inline-block;
+        }
+        @media (max-width: 900px) {
+            .user-profile {
+                min-width: 0;
+                max-width: 100vw;
+                padding: 6px 6px;
+                margin-right: 0;
+            }
+            .user-avatar {
+                width: 26px;
+                height: 26px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header" style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color: white; padding: 24px 0 10px 0; border-radius: 0 0 24px 24px; text-align: center; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 24px; margin-bottom: 16px;">
+            <div style="flex: 1;">
+                <div class="user-profile">
+                    <div class="user-avatar" id="user-avatar">
+                        <!-- JavaScript ile doldurulacak -->
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="user-name">
+                            <!-- JavaScript ile doldurulacak -->
+                        </span>
+                        <span class="user-role">Öğrenci</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <img src="/static/0.png" alt="BŞEÜ Logo" style="height: 60px; vertical-align: middle; margin-right: 16px; border-radius: 50%; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <span style="font-size: 2.2rem; font-weight: bold; letter-spacing: 1px;">BŞEÜ Akıllı Asistan</span>
+            </div>
+            <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="theme-switch" onclick="toggleTheme()" style="position: static; margin: 0;">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/logout" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.2); transition: all 0.3s ease;">
+                    <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="quick-access" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap;">
+            <button class="quick-btn" onclick="sendQuick('Kütüphane saatleri')">Kütüphane</button>
+            <button class="quick-btn" onclick="sendQuick('Yemekhane menüsü')">Yemekhane</button>
+            <button class="quick-btn" onclick="sendQuick('Kayıt işlemleri')">Kayıt</button>
+            <button class="quick-btn" onclick="sendQuick('Ulaşım Bilgileri')">Ulaşım</button>
+            <button class="quick-btn" onclick="sendQuick('Anlık Duyuru')">Anlık Duyuru</button>
+        </div>
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="Mesajınızı yazın veya mikrofon butonuna basarak konuşun...">
+            <input type="file" id="image-input" accept="image/*" style="display:none;">
+            <div class="button-container">
+                <button id="voice-button" class="action-button">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="send-button" class="action-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <button id="send-image-button" class="action-button">
+                    <i class="fas fa-image"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const voiceButton = document.getElementById('voice-button');
+        const chatMessages = document.getElementById('chat-messages');
+
+        let recognition = null;
+        let isRecording = false;
+        let speechSynthesis = window.speechSynthesis;
+        let voices = [];
+        let selectedImage = null;
+
+        // Sesli okuma fonksiyonu
+        function speak(text) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            // Türkçe sesi bul
+            const turkishVoice = speechSynthesis.getVoices().find(voice => voice.lang.includes('tr'));
+            if (turkishVoice) {
+                utterance.voice = turkishVoice;
+            }
+            utterance.rate = 1.0; // Normal hız
+            speechSynthesis.speak(utterance);
+        }
+
+        function addMessage(message, isUser, imageUrl = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.style.maxWidth = '200px';
+                img.style.maxHeight = '200px';
+                img.style.display = 'block';
+                img.style.marginBottom = '8px';
+                messageContent.appendChild(img);
+            }
+            
+            if (message) {
+                messageContent.textContent = message;
+            }
+            
+            const messageActions = document.createElement('div');
+            messageActions.className = 'message-actions';
+            if (!isUser) {
+                const speakButton = document.createElement('i');
+                speakButton.className = 'fas fa-volume-up action-icon';
+                speakButton.onclick = () => speak(message);
+                messageActions.appendChild(speakButton);
+            }
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(messageActions);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message && !selectedImage) return;
+
+            if (selectedImage) {
+                addMessage(message, true, selectedImage);
+                selectedImage = null;
+            } else {
+                addMessage(message, true);
+            }
+            
+            messageInput.value = '';
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typingIndicator);
+            typingIndicator.style.display = 'flex';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                typingIndicator.remove();
+                addMessage(data.response, false);
+            } catch (error) {
+                typingIndicator.remove();
+                addMessage('Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.', false);
+            }
+        }
+
+        async function sendImage() {
+            const imageInput = document.getElementById('image-input');
+            if (!imageInput.files.length) {
+                return;
+            }
+            
+            const file = imageInput.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            // Resmi göster
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImage = e.target.result;
+                addMessage('', true, selectedImage);
+            };
+            reader.readAsDataURL(file);
+            
+            // Resmi sunucuya gönder
+            try {
+                const response = await fetch('/image-to-text', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                addMessage(data.response, false);
+            } catch (error) {
+                console.error('Resim gönderme hatası:', error);
+                addMessage('Üzgünüm, resim işlenirken bir hata oluştu.', false);
+            }
+            
+            imageInput.value = '';
+        }
+
+        // Ses tanıma başlatma
+        function startVoiceRecognition() {
+            if (!recognition) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'tr-TR';
+                recognition.continuous = true;
+                recognition.interimResults = true;
+
+                recognition.onresult = function(event) {
+                    const transcript = Array.from(event.results)
+                        .map(result => result[0])
+                        .map(result => result.transcript)
+                        .join('');
+                    messageInput.value = transcript;
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Ses tanıma hatası:', event.error);
+                    isRecording = false;
+                    voiceButton.classList.remove('active');
+                };
+
+                recognition.onend = function() {
+                    isRecording = false;
+                    voiceButton.classList.remove('active');
+                };
+            }
+
+            try {
+                recognition.start();
+                isRecording = true;
+                voiceButton.classList.add('active');
+            } catch (error) {
+                console.error('Ses tanıma başlatılamadı:', error);
+            }
+        }
+
+        // Ses tanımayı durdurma
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+                isRecording = false;
+                voiceButton.classList.remove('active');
+            }
+        }
+
+        // Event Listeners
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        voiceButton.addEventListener('click', () => {
+            if (isRecording) {
+                stopVoiceRecognition();
+            } else {
+                startVoiceRecognition();
+            }
+        });
+
+        document.getElementById('send-image-button').addEventListener('click', function() {
+            document.getElementById('image-input').click();
+        });
+
+        document.getElementById('image-input').addEventListener('change', function() {
+            if (this.files.length) {
+                sendImage();
+            }
+        });
+
+        // Kullanıcı bilgilerini ayarla
+        function setUserInfo() {
+            const userName = '{{ session.user }}';
+            const userAvatar = document.getElementById('user-avatar');
+            const userNameElement = document.getElementById('user-name');
+            
+            // Kullanıcı adının baş harflerini al
+            const initials = userName.split(' ').map(word => word[0]).join('').toUpperCase();
+            
+            userAvatar.textContent = initials;
+            userNameElement.textContent = userName;
+        }
+
+        // Sayfa yüklendiğinde kullanıcı bilgilerini ayarla
+        window.addEventListener('load', () => {
+            setUserInfo();
+            // Otomatik karşılama mesajı
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'merhaba' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, false);
+            });
+        });
+
+        function sendQuick(msg) {
+            messageInput.value = msg;
+            sendMessage();
+        }
+
+        // Tema değiştirme fonksiyonu
+        function toggleTheme() {
+            const body = document.body;
+            const themeSwitch = document.querySelector('.theme-switch i');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeSwitch.classList.remove('fa-sun');
+                themeSwitch.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeSwitch.classList.remove('fa-moon');
+                themeSwitch.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Sayfa yüklendiğinde son kullanılan temayı uygula
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeSwitch = document.querySelector('.theme-switch i');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeSwitch.classList.remove('fa-moon');
+                themeSwitch.classList.add('fa-sun');
+            }
+        });
+    </script>
+</body>
+</html> 

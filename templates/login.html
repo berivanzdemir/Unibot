@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - BŞEÜ Akıllı Asistan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00CED1;
+            --secondary-color: #1E90FF;
+            --background-color: #F0F8FF;
+            --text-color: #333;
+            --error-color: #d32f2f;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        body {
+            background: linear-gradient(120deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px var(--shadow-color);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .login-container h2 {
+            margin: 0 0 24px 0;
+            color: var(--primary-color);
+            font-size: 1.8em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            box-sizing: border-box;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.2);
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 206, 209, 0.3);
+        }
+
+        .login-container button:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: var(--error-color);
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: rgba(211, 47, 47, 0.1);
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .forgot-password {
+            margin-top: 16px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <form class="login-container" method="POST">
+        <div class="logo-container">
+            <img src="/static/0.png" alt="BŞEÜ Logo" class="logo">
+            <h2>BŞEÜ Akıllı Asistan</h2>
+        </div>
+        {% if error %}
+            <div class="error">
+                <i class="fas fa-exclamation-circle"></i> {{ error }}
+            </div>
+        {% endif %}
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" name="username" placeholder="Kullanıcı adı veya e-posta" required>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Şifre" required>
+        </div>
+        <button type="submit">
+            <i class="fas fa-sign-in-alt"></i> Giriş Yap
+        </button>
+        <a href="#" class="forgot-password">Şifremi Unuttum</a>
+    </form>
+</body>
+</html> 
